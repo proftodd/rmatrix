@@ -20,11 +20,11 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y cmake make gcc
     
-    -name: Configure CMake
+    - name: Configure CMake
       run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
     
-    -name: Build
+    - name: Build
       run: cmake --build build --parallel
     
-    -name: Run Tests
+    - name: Run Tests
       run: ctest --test-dir build --output-on-failure
