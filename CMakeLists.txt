@@ -15,4 +15,3 @@ FetchContent_MakeAvailable(rashunal)
 enable_testing()
 
 add_subdirectory(rmatrix)
-add_subdirectory(external)
