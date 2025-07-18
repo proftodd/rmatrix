@@ -6,12 +6,11 @@ target_include_directories(rmatrix
     PUBLIC
         $<INSTALL_INTERFACE:include>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-        $<TARGET_PROPERTY:rashunal,INTERFACE_INCLUDE_DIRECTORIES>
 )
 
 target_link_libraries(rmatrix
-    PRIVATE
-        rashunal
+    PUBLIC
+        rashunal::rashunal
         m
 )
 
