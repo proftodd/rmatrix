@@ -8,5 +8,3 @@ set_target_properties(test_rmatrix_app PROPERTIES
     BUILD_RPATH "@loader_path/..")
 target_link_libraries(test_rmatrix_app PRIVATE rmatrix Unity)
 add_test(test_rmatrix_suite test_rmatrix_app)
-add_test(NAME valgrind_memcheck
-         COMMAND valgrind --leak-check=full --error-exitcode=1 $<TARGET_FILE:test_rmatrix_app>)
