@@ -5,7 +5,7 @@ include(FetchContent)
 
 find_package(rashunal QUIET)
 
-option(USE_LOCAL_RASHUNAL "Use local Rashunal project instead of fetching" ON)
+option(USE_LOCAL_RASHUNAL "Use local Rashunal project instead of fetching" OFF)
 
 if (NOT rashunal_FOUND)
 if (USE_LOCAL_RASHUNAL)
