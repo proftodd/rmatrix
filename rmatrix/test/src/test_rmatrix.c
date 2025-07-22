@@ -20,6 +20,9 @@ void test_new_RMatrix_returns_matrix()
     RMatrix *m = new_RMatrix(2, 3, data);
     TEST_ASSERT_EQUAL(2, RMatrix_height(m));
     TEST_ASSERT_EQUAL(3, RMatrix_width(m));
+    for (int i = 0; i < 6; ++i) {
+        free(data[i]);
+    }
     free_RMatrix(m);
 }
 

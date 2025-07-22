@@ -51,6 +51,7 @@ void free_RMatrix(RMatrix *m)
     for (size_t i = 0; i < m->height * m->width; ++i) {
         free(m->data[i]);
     }
+    free(m->data);
     free(m);
 }
 
