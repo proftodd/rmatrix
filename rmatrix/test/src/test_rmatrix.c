@@ -59,7 +59,46 @@ void test_RMatrix_to_string_array()
     free(str);
 }
 
-void tearDown(void) {
+void test_RMatrix_cmp()
+{
+    const Rashunal *data1[] = {
+        ni_Rashunal(1),
+        ni_Rashunal(2),
+        ni_Rashunal(3),
+        ni_Rashunal(4),
+        ni_Rashunal(5),
+        ni_Rashunal(6),
+    };
+    const Rashunal *data2[] = {
+        ni_Rashunal(1),
+        ni_Rashunal(2),
+        ni_Rashunal(3),
+        ni_Rashunal(4),
+        ni_Rashunal(5),
+        ni_Rashunal(9),
+    };
+    RMatrix *m1 = new_RMatrix(2, 3, data1);
+    RMatrix *m2 = new_RMatrix(3, 2, data1);
+    RMatrix *m3 = new_RMatrix(2, 3, data2);
+    RMatrix *m4 = new_RMatrix(2, 3, data1);
+
+    TEST_ASSERT_TRUE(RMatrix_cmp(m1, m2) != 0);
+    TEST_ASSERT_TRUE(RMatrix_cmp(m1, m3) != 0);
+    TEST_ASSERT_TRUE(RMatrix_cmp(m1, m4) == 0);
+
+    free_RMatrix(m1);
+    free_RMatrix(m2);
+    free_RMatrix(m3);
+    free_RMatrix(m4);
+
+    for (int i = 0; i < 6; ++i) {
+        free(data1[i]);
+        free(data2[i]);
+    }
+}
+
+void tearDown(void)
+{
 
 }
 
@@ -70,6 +109,7 @@ int main(void)
     RUN_TEST(test_new_RMatrix_returns_matrix);
     RUN_TEST(test_new_RMatrix_with_invalid_dimensions_return_void_and_sets_errno);
     RUN_TEST(test_RMatrix_to_string_array);
+    RUN_TEST(test_RMatrix_cmp);
 
     return UNITY_END();
 }

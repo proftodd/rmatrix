@@ -156,3 +156,21 @@ char** RMatrix_to_string_array(const RMatrix *m)
 
     return res;
 }
+
+int RMatrix_cmp(const RMatrix *a, const RMatrix *b)
+{
+    if (a->width != b->width || a->height != b->height) {
+        return 1;
+    }
+    for (int i = 1; i <= a->height; ++i) {
+        for (int j = 1; j <= a->width; ++j) {
+            Rashunal *ar = RMatrix_query(a, i, j);
+            Rashunal *br = RMatrix_query(b, i, j);
+            const int diff = r_cmp(ar, br);
+            if (diff != 0) {
+                return diff;
+            }
+        }
+    }
+    return 0;
+}

@@ -15,4 +15,6 @@ const Rashunal* RMatrix_get(const RMatrix *m, size_t row, size_t col);
 
 char** RMatrix_to_string_array(const RMatrix *m);
 
+int RMatrix_cmp(const RMatrix *a, const RMatrix *b);
+
 #endif
