@@ -21,3 +21,6 @@ Querying RMatrix elements creates copies of the elements. You are responsible fo
 ## Comparing RMatrices
 
 The RMatrix_cmp function returns an integer value. Unlike Rashunal's r_cmp or the usual interpretation of C's comparison functions, one should only infer that values different from 0 indicate non-equivalence. Since I'm not aware of a concept of matrices being greater or less than each other, there is no significance to the return value of RMatrix_cmp being less than or greater than 0 or to its magnitude.
+
+## Mutating functions
+The mutating functions RMatrix_set, RMatrix_row_mult, RMatrix_row_swap, and RMatrix_lc return newly-allocated RMatrices with all-new members. The old RMatrix and the new one should be freed appropriately.

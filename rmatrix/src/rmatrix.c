@@ -46,6 +46,8 @@ RMatrix* new_RMatrix(const size_t height, const size_t width, const Rashunal **d
             for (size_t j = 0; j < i; ++j) {
                 free(matrix->data[j]);
             }
+            free(matrix->data);
+            free(matrix);
             return NULL;
         }
     }
@@ -173,4 +175,188 @@ int RMatrix_cmp(const RMatrix *a, const RMatrix *b)
         }
     }
     return 0;
+}
+
+RMatrix *RMatrix_set(const RMatrix *m, const Rashunal *e, size_t row, size_t col)
+{
+    if (row < 1 || row > m->height || col < 1 || col > m->width || e == NULL) {
+        errno = EINVAL;
+        return NULL;
+    }
+
+    RMatrix *r = malloc(sizeof(RMatrix));
+    if (!r) {
+        return NULL;
+    }
+
+    r->height = m->height;
+    r->width = m->width;
+    const size_t total = m->height * m->width;
+
+    r->data = malloc(sizeof(Rashunal *) * total);
+    if (!r->data) {
+        free(r);
+        return NULL;
+    }
+
+    const size_t target_index = (row - 1) * m->width + (col - 1);
+    for (size_t i = 0; i < total; ++i) {
+        const Rashunal *ee = i == target_index ? e : m->data[i];
+        r->data[i] = n_Rashunal(ee->numerator, ee->denominator);
+        if (!r->data[i]) {
+            for (size_t j = 0; j < i; ++j) {
+                free(r->data[j]);
+            }
+            free(r->data);
+            free(r);
+            return NULL;
+        }
+    }
+
+    return r;
+}
+
+RMatrix *RMatrix_row_mul(const RMatrix *m, const Rashunal *s, size_t row)
+{
+    if (row < 1 || row > m->height || s == NULL) {
+        errno = EINVAL;
+        return NULL;
+    }
+
+    RMatrix *r = malloc(sizeof(RMatrix));
+    if (!r) {
+        return NULL;
+    }
+
+    r->height = m->height;
+    r->width = m->width;
+    const size_t total = m->height * m->width;
+
+    r->data = malloc(sizeof(Rashunal *) * total);
+    if (!r->data) {
+        free(r);
+        return NULL;
+    }
+
+    const size_t min_target_index = (row - 1) * m->width;
+    const size_t max_target_index = row * m->width;
+    for (size_t i = 0; i < total; ++i) {
+        Rashunal *ee;
+        if (i >= min_target_index && i < max_target_index) {
+            ee = r_mul(m->data[i], s);
+        } else {
+            ee = n_Rashunal(m->data[i]->numerator, m->data[i]->denominator);
+        }
+        r->data[i] = ee;
+        if (!r->data[i]) {
+            for (size_t j = 0; j < i; ++j) {
+                free(r->data[j]);
+            }
+            free(r->data);
+            free(r);
+            return NULL;
+        }
+    }
+
+    return r;
+}
+
+RMatrix *RMatrix_row_swap(const RMatrix *m, size_t row1, size_t row2)
+{
+    if (row1 < 1 || row1 > m->height || row2 < 1 || row2 > m->height) {
+        errno = EINVAL;
+        return NULL;
+    }
+
+    RMatrix *r = malloc(sizeof(RMatrix));
+    if (!r) {
+        return NULL;
+    }
+
+    r->height = m->height;
+    r->width = m->width;
+    const size_t total = m->height * m->width;
+
+    r->data = malloc(sizeof(Rashunal *) * total);
+    if (!r->data) {
+        free(r);
+        return NULL;
+    }
+
+    const size_t min_target_index_1 = (row1 - 1) * m->width;
+    const size_t max_target_index_1 = row1 * m->width;
+    const size_t min_target_index_2 = (row2 - 1) * m->width;
+    const size_t max_target_index_2 = row2 * m->width;
+    size_t an_index;
+    for (size_t i = 0; i < total; ++i) {
+        if (i >= min_target_index_1 && i < max_target_index_1) {
+            an_index = min_target_index_2 + i % m->width;
+        } else if (i >= min_target_index_2 && i < max_target_index_2) {
+            an_index = min_target_index_1 + i % m->width;
+        } else {
+            an_index = i;
+        }
+        Rashunal *ee = m->data[an_index];
+        r->data[i] = n_Rashunal(ee->numerator, ee->denominator);
+        if (!r->data[i]) {
+            for (size_t j = 0; j < i; ++j) {
+                free(r->data[j]);
+            }
+            free(r->data);
+            free(r);
+            return NULL;
+        }
+    }
+
+    return r;
+}
+
+RMatrix *RMatrix_lc(const RMatrix *m, const Rashunal *scale, size_t source_row, size_t dest_row)
+{
+    if (source_row < 1 || source_row > m->height || dest_row < 1 || dest_row > m->height) {
+        errno = EINVAL;
+        return NULL;
+    }
+
+    RMatrix *r = malloc(sizeof(RMatrix));
+    if (!r) {
+        return NULL;
+    }
+
+    r->height = m->height;
+    r->width = m->width;
+    const size_t total = m->height * m->width;
+
+    r->data = malloc(sizeof(Rashunal *) * total);
+    if (!r->data) {
+        free(r);
+        return NULL;
+    }
+
+    const size_t min_target_index = (dest_row - 1) * m->width;
+    const size_t max_target_index = dest_row * m->width;
+    int src_index;
+    Rashunal *e = NULL, *p = NULL;
+    for (size_t i = 0; i < total; ++i) {
+        if (i < min_target_index || i >= max_target_index) {
+            e = m->data[i];
+        } else {
+            src_index = (source_row - 1) * m->width + (i % m->width);
+            p = r_mul(m->data[src_index], scale);
+            e = r_add(m->data[i], p);
+        }
+        r->data[i] = n_Rashunal(e->numerator, e->denominator);
+        if (!r->data[i]) {
+            for (size_t j = 0; j < i; ++j) {
+                free(r->data[j]);
+            }
+            free(r->data);
+            free(r);
+            return NULL;
+        }
+    }
+
+    free(e);
+    free(p);
+    return r;
 }
