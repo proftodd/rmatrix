@@ -34,6 +34,174 @@ void test_new_RMatrix_with_invalid_dimensions_return_void_and_sets_errno()
     TEST_ASSERT_EQUAL(EINVAL, errno);
 }
 
+void test_RMatrix_add()
+{
+    const Rashunal *data1[] = {
+        ni_Rashunal(1),
+        ni_Rashunal(2),
+        ni_Rashunal(3),
+        ni_Rashunal(4),
+        ni_Rashunal(5),
+        ni_Rashunal(6),
+        ni_Rashunal(7),
+        ni_Rashunal(8),
+        ni_Rashunal(9),
+        ni_Rashunal(0),
+        ni_Rashunal(1),
+        ni_Rashunal(2),
+    };
+    const Rashunal *data2[] = {
+        ni_Rashunal(1),
+        ni_Rashunal(1),
+        ni_Rashunal(1),
+        ni_Rashunal(1),
+        ni_Rashunal(2),
+        ni_Rashunal(2),
+        ni_Rashunal(2),
+        ni_Rashunal(2),
+        ni_Rashunal(3),
+        ni_Rashunal(3),
+        ni_Rashunal(3),
+        ni_Rashunal(3),
+    };
+    const Rashunal *data3[] = {
+        ni_Rashunal(2),
+        ni_Rashunal(3),
+        ni_Rashunal(4),
+        ni_Rashunal(5),
+        ni_Rashunal(7),
+        ni_Rashunal(8),
+        ni_Rashunal(9),
+        ni_Rashunal(10),
+        ni_Rashunal(12),
+        ni_Rashunal(3),
+        ni_Rashunal(4),
+        ni_Rashunal(5),
+    };
+
+    RMatrix *m1 = new_RMatrix(3, 4, data1);
+    RMatrix *m2 = new_RMatrix(3, 4, data2);
+    RMatrix *expected = new_RMatrix(3, 4, data3);
+
+    RMatrix *actual = RMatrix_add(m1, m2);
+
+    TEST_ASSERT_TRUE(RMatrix_cmp(expected, actual) == 0);
+
+    free_RMatrix(m1);
+    free_RMatrix(m2);
+    free_RMatrix(expected);
+    free_RMatrix(actual);
+    for (int i = 0; i < 12; ++i) {
+        free((void *)data1[i]);
+        free((void *)data2[i]);
+        free((void *)data3[i]);
+    }
+}
+
+void test_RMatrix_transpose()
+{
+    const Rashunal *data1[] = {
+        ni_Rashunal(1),
+        ni_Rashunal(2),
+        ni_Rashunal(3),
+        ni_Rashunal(4),
+        ni_Rashunal(5),
+        ni_Rashunal(6),
+        ni_Rashunal(7),
+        ni_Rashunal(8),
+        ni_Rashunal(9),
+        ni_Rashunal(0),
+        ni_Rashunal(1),
+        ni_Rashunal(2),
+    };
+    const Rashunal *data2[] = {
+        ni_Rashunal(1),
+        ni_Rashunal(5),
+        ni_Rashunal(9),
+        ni_Rashunal(2),
+        ni_Rashunal(6),
+        ni_Rashunal(0),
+        ni_Rashunal(3),
+        ni_Rashunal(7),
+        ni_Rashunal(1),
+        ni_Rashunal(4),
+        ni_Rashunal(8),
+        ni_Rashunal(2),
+    };
+    RMatrix *m = new_RMatrix(3, 4, data1);
+    RMatrix *expected = new_RMatrix(4, 3, data2);
+
+    RMatrix *actual = RMatrix_transpose(m);
+
+    TEST_ASSERT_TRUE(RMatrix_cmp(expected, actual) == 0);
+
+    free_RMatrix(m);
+    free_RMatrix(expected);
+    free_RMatrix(actual);
+    for (int i = 0; i < 12; ++i) {
+        free((void *)data1[i]);
+        free((void *)data2[i]);
+    }
+}
+
+void test_RMatrix_mul()
+{
+    const Rashunal *data1[] = {
+        ni_Rashunal(1),
+        ni_Rashunal(2),
+        ni_Rashunal(3),
+        ni_Rashunal(4),
+        ni_Rashunal(5),
+        ni_Rashunal(6),
+        ni_Rashunal(7),
+        ni_Rashunal(8),
+        ni_Rashunal(9),
+        ni_Rashunal(0),
+        ni_Rashunal(1),
+        ni_Rashunal(2),
+    };
+    const Rashunal *data2[] = {
+        ni_Rashunal(1),
+        ni_Rashunal(2),
+        ni_Rashunal(-1),
+        ni_Rashunal(-2),
+        ni_Rashunal(0),
+        ni_Rashunal(3),
+        ni_Rashunal(1),
+        ni_Rashunal(0),
+    };
+    const Rashunal *data3[] = {
+        ni_Rashunal(3),
+        ni_Rashunal(7),
+        ni_Rashunal(7),
+        ni_Rashunal(19),
+        ni_Rashunal(11),
+        ni_Rashunal(21),
+    };
+
+    RMatrix *m1 = new_RMatrix(3, 4, data1);
+    RMatrix *m2 = new_RMatrix(4, 2, data2);
+    RMatrix *expected = new_RMatrix(3, 2, data3);
+
+    RMatrix *actual = RMatrix_mul(m1, m2);
+
+    TEST_ASSERT_TRUE(RMatrix_cmp(expected, actual) == 0);
+
+    free_RMatrix(m1);
+    free_RMatrix(m2);
+    free_RMatrix(expected);
+    free_RMatrix(actual);
+    for (int i = 0; i < 12; ++i) {
+        free((void *)data1[i]);
+    }
+    for (int i = 0; i < 8; ++i) {
+        free((void *)data2[i]);
+    }
+    for (int i = 0; i < 6; ++i) {
+        free((void *)data3[i]);
+    }
+}
+
 void test_RMatrix_to_string_array()
 {
     const Rashunal *data[] = {
@@ -298,6 +466,9 @@ int main(void)
 
     RUN_TEST(test_new_RMatrix_returns_matrix);
     RUN_TEST(test_new_RMatrix_with_invalid_dimensions_return_void_and_sets_errno);
+    RUN_TEST(test_RMatrix_add);
+    RUN_TEST(test_RMatrix_mul);
+    RUN_TEST(test_RMatrix_transpose);
     RUN_TEST(test_RMatrix_to_string_array);
     RUN_TEST(test_RMatrix_cmp);
     RUN_TEST(test_RMatrix_set);

@@ -74,6 +74,135 @@ size_t RMatrix_width(const RMatrix *m)
     return m ? m->width : 0;
 }
 
+RMatrix *RMatrix_add(const RMatrix *m, const RMatrix *n)
+{
+    if (m->height != n->height || m->width != n->width) {
+        errno = EINVAL;
+        return NULL;
+    }
+
+    RMatrix *r = malloc(sizeof(RMatrix));
+    if (!r) {
+        return NULL;
+    }
+
+    r->height = m->height;
+    r->width = m->width;
+    const size_t total = m->height * m->width;
+
+    r->data = malloc(sizeof(Rashunal *) * total);
+    if (!r->data) {
+        free(r);
+        return NULL;
+    }
+
+    for (size_t i = 0; i < total; ++i) {
+        r->data[i] = r_add(m->data[i], n->data[i]);
+        if (!r->data[i]) {
+            for (size_t j = 0; j < i; ++j) {
+                free(r->data[j]);
+            }
+            free(r->data);
+            free(r);
+            return NULL;
+        }
+    }
+
+    return r;
+}
+
+RMatrix *RMatrix_mul(const RMatrix *m, const RMatrix *n)
+{
+    if (m->width != n->height) {
+        errno = EINVAL;
+        return NULL;
+    }
+
+    RMatrix *r = malloc(sizeof(RMatrix));
+    if (!r) {
+        return NULL;
+    }
+
+    r->height = m->height;
+    r->width = n->width;
+    const size_t total = r->height * r->width;
+
+    r->data = malloc(sizeof(Rashunal *) * total);
+    if (!r->data) {
+        free(r);
+        return NULL;
+    }
+
+    Rashunal *s, *p, *new_s;
+    for (size_t i = 0; i < total; ++i) {
+        size_t left_row_index = i / r->width;
+        size_t right_col_index = i % r->width;
+        s = ni_Rashunal(0);
+        for (size_t j = 0; j < m->width; ++j) {
+            size_t left_index = left_row_index * m->width + j;
+            size_t right_index = right_col_index + j * n->width;
+            Rashunal *left = m->data[left_index];
+            Rashunal *right = n->data[right_index];
+            p = r_mul(left, right);
+            if (!p) {
+                free(r);
+                free(p);
+                free(s);
+                free(new_s);
+                return NULL;
+            }
+            new_s = r_add(s, p);
+            if (!new_s) {
+                free(r);
+                free(p);
+                free(s);
+                free(new_s);
+                return NULL;
+            }
+            free(p);
+            free(s);
+            s = new_s;
+        }
+        r->data[i] = s;
+    }
+
+    return r;
+}
+
+RMatrix *RMatrix_transpose(const RMatrix *m)
+{
+    RMatrix *r = malloc(sizeof(RMatrix));
+    if (!r) {
+        return NULL;
+    }
+
+    r->height = m->width;
+    r->width = m->height;
+    const size_t total = m->height * m->width;
+
+    r->data = malloc(sizeof(Rashunal *) * total);
+    if (!r->data) {
+        free(r);
+        return NULL;
+    }
+
+    for (size_t i = 0; i < total; ++i) {
+        size_t si = i / m->height + (i % m->height) * m->width;
+        Rashunal *src = m->data[si];
+        r->data[i] = n_Rashunal(src->numerator, src->denominator);
+        if (!r->data[i]) {
+            for (size_t j = 0; j < i; ++j) {
+                free(r->data[j]);
+            }
+            free(r->data);
+            free(r);
+            return NULL;
+        }
+    }
+
+    return r;
+}
+
 const Rashunal* RMatrix_get(const RMatrix *m, const size_t row, const size_t col)
 {
     if (row < 1 || row > m->height || col < 1 || col > m->width)

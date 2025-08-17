@@ -11,6 +11,11 @@ void free_RMatrix(RMatrix *m);
 
 size_t RMatrix_height(const RMatrix *m);
 size_t RMatrix_width(const RMatrix *m);
+
+RMatrix *RMatrix_add(const RMatrix *m, const RMatrix *n);
+RMatrix *RMatrix_mul(const RMatrix *m, const RMatrix *n);
+RMatrix *RMatrix_transpose(const RMatrix *m);
+
 const Rashunal* RMatrix_get(const RMatrix *m, size_t row, size_t col);
 
 char** RMatrix_to_string_array(const RMatrix *m);
