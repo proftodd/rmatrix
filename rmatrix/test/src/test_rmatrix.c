@@ -21,7 +21,7 @@ void test_new_RMatrix_returns_matrix()
     TEST_ASSERT_EQUAL(2, RMatrix_height(m));
     TEST_ASSERT_EQUAL(3, RMatrix_width(m));
     for (int i = 0; i < 6; ++i) {
-        free(data[i]);
+        free((void *)data[i]);
     }
     free_RMatrix(m);
 }
@@ -45,12 +45,12 @@ void test_RMatrix_to_string_array()
         n_Rashunal(10, 3),
     };
     RMatrix *m = new_RMatrix(2, 3, data);
-    const char** str = RMatrix_to_string_array(m);
+    char** str = RMatrix_to_string_array(m);
     TEST_ASSERT_EQUAL_STRING("[ 1 2      3     ]", str[0]);
     TEST_ASSERT_EQUAL_STRING("[ 4 1 / 2 10 / 3 ]", str[1]);
 
     for (int i = 0; i < 6; ++i) {
-        free(data[i]);
+        free((void *)data[i]);
     }
     free_RMatrix(m);
     for (int i = 0; i < 2; ++i) {
@@ -92,8 +92,8 @@ void test_RMatrix_cmp()
     free_RMatrix(m4);
 
     for (int i = 0; i < 6; ++i) {
-        free(data1[i]);
-        free(data2[i]);
+        free((void *)data1[i]);
+        free((void *)data2[i]);
     }
 }
 
@@ -127,11 +127,11 @@ void test_RMatrix_set()
         ni_Rashunal(1),
         ni_Rashunal(2),
     };
-    const Rashunal *e = n_Rashunal(2, 3);
-    const RMatrix *m = new_RMatrix(3, 4, data1);
-    const RMatrix *expected = new_RMatrix(3, 4, data2);
+    Rashunal *e = n_Rashunal(2, 3);
+    RMatrix *m = new_RMatrix(3, 4, data1);
+    RMatrix *expected = new_RMatrix(3, 4, data2);
 
-    const RMatrix *actual = RMatrix_set(m, e, 3, 2);
+    RMatrix *actual = RMatrix_set(m, e, 3, 2);
 
     TEST_ASSERT_TRUE(RMatrix_cmp(expected, actual) == 0);
 
@@ -140,8 +140,8 @@ void test_RMatrix_set()
     free_RMatrix(actual);
     free(e);
     for (int i = 0; i < 12; ++i) {
-        free(data1[i]);
-        free(data2[i]);
+        free((void *)data1[i]);
+        free((void *)data2[i]);
     }
 }
 
@@ -175,11 +175,11 @@ void test_RMatrix_row_mul()
         ni_Rashunal(1),
         ni_Rashunal(2),
     };
-    const Rashunal *e = n_Rashunal(2, 3);
-    const RMatrix *m = new_RMatrix(3, 4, data1);
-    const RMatrix *expected = new_RMatrix(3, 4, data2);
+    Rashunal *e = n_Rashunal(2, 3);
+    RMatrix *m = new_RMatrix(3, 4, data1);
+    RMatrix *expected = new_RMatrix(3, 4, data2);
 
-    const RMatrix *actual = RMatrix_row_mul(m, e, 2);
+    RMatrix *actual = RMatrix_row_mul(m, e, 2);
 
     TEST_ASSERT_TRUE(RMatrix_cmp(expected, actual) == 0);
 
@@ -188,8 +188,8 @@ void test_RMatrix_row_mul()
     free_RMatrix(actual);
     free(e);
     for (int i = 0; i < 12; ++i) {
-        free(data1[i]);
-        free(data2[i]);
+        free((void *)data1[i]);
+        free((void *)data2[i]);
     }
 }
 
@@ -223,10 +223,10 @@ void test_RMatrix_row_swap()
         ni_Rashunal(7),
         ni_Rashunal(8),
     };
-    const RMatrix *m = new_RMatrix(3, 4, data1);
-    const RMatrix *expected = new_RMatrix(3, 4, data2);
+    RMatrix *m = new_RMatrix(3, 4, data1);
+    RMatrix *expected = new_RMatrix(3, 4, data2);
 
-    const RMatrix *actual = RMatrix_row_swap(m, 2, 3);
+    RMatrix *actual = RMatrix_row_swap(m, 2, 3);
 
     TEST_ASSERT_TRUE(RMatrix_cmp(expected, actual) == 0);
 
@@ -234,8 +234,8 @@ void test_RMatrix_row_swap()
     free_RMatrix(expected);
     free_RMatrix(actual);
     for (int i = 0; i < 12; ++i) {
-        free(data1[i]);
-        free(data2[i]);
+        free((void *)data1[i]);
+        free((void *)data2[i]);
     }
 }
 
@@ -269,20 +269,21 @@ void test_RMatrix_lc()
         n_Rashunal(-58, 5),
         n_Rashunal(-62, 5),
     };
-    const Rashunal *scale = n_Rashunal(-9, 5);
-    const RMatrix *m = new_RMatrix(3, 4, data1);
-    const RMatrix *expected = new_RMatrix(3, 4, data2);
+    Rashunal *scale = n_Rashunal(-9, 5);
+    RMatrix *m = new_RMatrix(3, 4, data1);
+    RMatrix *expected = new_RMatrix(3, 4, data2);
 
-    const RMatrix *actual = RMatrix_lc(m, scale, 2, 3);
+    RMatrix *actual = RMatrix_lc(m, scale, 2, 3);
 
     TEST_ASSERT_TRUE(RMatrix_cmp(expected, actual) == 0);
 
+    free(scale);
     free_RMatrix(m);
     free_RMatrix(expected);
     free_RMatrix(actual);
     for (int i = 0; i < 12; ++i) {
-        free(data1[i]);
-        free(data2[i]);
+        free((void *)data1[i]);
+        free((void *)data2[i]);
     }
 }
 
