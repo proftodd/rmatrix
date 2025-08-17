@@ -134,6 +134,7 @@ RMatrix *RMatrix_mul(const RMatrix *m, const RMatrix *n)
     }
 
     Rashunal *s, *p, *new_s;
+    new_s = NULL;
     for (size_t i = 0; i < total; ++i) {
         size_t left_row_index = i / r->width;
         size_t right_col_index = i % r->width;
