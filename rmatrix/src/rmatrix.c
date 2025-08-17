@@ -8,8 +8,8 @@
 #include "rmatrix.h"
 
 struct RMatrix {
-    int height;
-    int width;
+    size_t height;
+    size_t width;
     Rashunal **data;
 };
 
@@ -335,17 +335,19 @@ RMatrix *RMatrix_lc(const RMatrix *m, const Rashunal *scale, size_t source_row, 
 
     const size_t min_target_index = (dest_row - 1) * m->width;
     const size_t max_target_index = dest_row * m->width;
-    int src_index;
+    size_t src_index;
     Rashunal *e = NULL, *p = NULL;
     for (size_t i = 0; i < total; ++i) {
         if (i < min_target_index || i >= max_target_index) {
-            e = m->data[i];
+            r->data[i] = n_Rashunal(m->data[i]->numerator, m->data[i]->denominator);
         } else {
             src_index = (source_row - 1) * m->width + (i % m->width);
             p = r_mul(m->data[src_index], scale);
             e = r_add(m->data[i], p);
+            r->data[i] = n_Rashunal(e->numerator, e->denominator);
+            free(p);
+            free(e);
         }
-        r->data[i] = n_Rashunal(e->numerator, e->denominator);
         if (!r->data[i]) {
             for (size_t j = 0; j < i; ++j) {
                 free(r->data[j]);
@@ -356,7 +358,5 @@ RMatrix *RMatrix_lc(const RMatrix *m, const Rashunal *scale, size_t source_row, 
         }
     }
 
-    free(e);
-    free(p);
     return r;
 }
