@@ -56,3 +56,4 @@ build
 
 # IDE artifacts
 .vscode
+.idea

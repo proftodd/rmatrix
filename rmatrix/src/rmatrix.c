@@ -41,7 +41,7 @@ RMatrix* new_RMatrix(const size_t height, const size_t width, const Rashunal **d
     }
 
     for (size_t i = 0; i < total; ++i) {
-        matrix->data[i] = n_Rashunal(data[i]->numerator, data[i]->denominator);
+        matrix->data[i] = nr_Rashunal(data[i]);
         if (!matrix->data[i]) {
             for (size_t j = 0; j < i; ++j) {
                 free(matrix->data[j]);
@@ -133,17 +133,16 @@ RMatrix *RMatrix_mul(const RMatrix *m, const RMatrix *n)
         return NULL;
     }
 
-    Rashunal *s, *p, *new_s;
-    new_s = NULL;
+    Rashunal *s, *p, *new_s = NULL;
     for (size_t i = 0; i < total; ++i) {
-        size_t left_row_index = i / r->width;
-        size_t right_col_index = i % r->width;
+        const size_t left_row_index = i / r->width;
+        const size_t right_col_index = i % r->width;
         s = ni_Rashunal(0);
         for (size_t j = 0; j < m->width; ++j) {
-            size_t left_index = left_row_index * m->width + j;
-            size_t right_index = right_col_index + j * n->width;
-            Rashunal *left = m->data[left_index];
-            Rashunal *right = n->data[right_index];
+            const size_t left_index = left_row_index * m->width + j;
+            const size_t right_index = right_col_index + j * n->width;
+            const Rashunal *left = m->data[left_index];
+            const Rashunal *right = n->data[right_index];
             p = r_mul(left, right);
             if (!p) {
                 free(r);
@@ -189,8 +188,7 @@ RMatrix *RMatrix_transpose(const RMatrix *m)
 
     for (size_t i = 0; i < total; ++i) {
         size_t si = i / m->height + (i % m->height) * m->width;
-        Rashunal *src = m->data[si];
-        r->data[i] = n_Rashunal(src->numerator, src->denominator);
+        r->data[i] = nr_Rashunal(m->data[si]);
         if (!r->data[i]) {
             for (size_t j = 0; j < i; ++j) {
                 free(r->data[j]);
@@ -212,7 +210,7 @@ const Rashunal* RMatrix_get(const RMatrix *m, const size_t row, const size_t col
         return NULL;
     }
     const Rashunal *element = m->data[(row - 1) * m->width + (col - 1)];
-    return n_Rashunal(element->numerator, element->denominator);
+    return nr_Rashunal(element);
 }
 
 static Rashunal* RMatrix_query(const RMatrix *m, const size_t row, const size_t col) {
@@ -240,9 +238,9 @@ char** RMatrix_to_string_array(const RMatrix *m)
     }
 
     int line_width = \
-        2         // opening and closing brackets
-      + 1         // leading space
-      + m->width; // trailing space after each element
+        2              // opening and closing brackets
+      + 1              // leading space
+      + (int)m->width; // trailing space after each element
     for (int i = 0; i < m->width; ++i) {
         line_width += widths[i]->first;
         if (widths[i]->second > 0) {    // denominator is not 1
@@ -296,8 +294,8 @@ int RMatrix_cmp(const RMatrix *a, const RMatrix *b)
     }
     for (int i = 1; i <= a->height; ++i) {
         for (int j = 1; j <= a->width; ++j) {
-            Rashunal *ar = RMatrix_query(a, i, j);
-            Rashunal *br = RMatrix_query(b, i, j);
+            const Rashunal *ar = RMatrix_query(a, i, j);
+            const Rashunal *br = RMatrix_query(b, i, j);
             const int diff = r_cmp(ar, br);
             if (diff != 0) {
                 return diff;
@@ -307,7 +305,7 @@ int RMatrix_cmp(const RMatrix *a, const RMatrix *b)
     return 0;
 }
 
-RMatrix *RMatrix_set(const RMatrix *m, const Rashunal *e, size_t row, size_t col)
+RMatrix *RMatrix_set(const RMatrix *m, const Rashunal *e, const size_t row, const size_t col)
 {
     if (row < 1 || row > m->height || col < 1 || col > m->width || e == NULL) {
         errno = EINVAL;
@@ -332,7 +330,7 @@ RMatrix *RMatrix_set(const RMatrix *m, const Rashunal *e, size_t row, size_t col
     const size_t target_index = (row - 1) * m->width + (col - 1);
     for (size_t i = 0; i < total; ++i) {
         const Rashunal *ee = i == target_index ? e : m->data[i];
-        r->data[i] = n_Rashunal(ee->numerator, ee->denominator);
+        r->data[i] = nr_Rashunal(ee);
         if (!r->data[i]) {
             for (size_t j = 0; j < i; ++j) {
                 free(r->data[j]);
@@ -346,7 +344,7 @@ RMatrix *RMatrix_set(const RMatrix *m, const Rashunal *e, size_t row, size_t col
     return r;
 }
 
-RMatrix *RMatrix_row_mul(const RMatrix *m, const Rashunal *s, size_t row)
+RMatrix *RMatrix_row_mul(const RMatrix *m, const Rashunal *s, const size_t row)
 {
     if (row < 1 || row > m->height || s == NULL) {
         errno = EINVAL;
@@ -375,7 +373,7 @@ RMatrix *RMatrix_row_mul(const RMatrix *m, const Rashunal *s, size_t row)
         if (i >= min_target_index && i < max_target_index) {
             ee = r_mul(m->data[i], s);
         } else {
-            ee = n_Rashunal(m->data[i]->numerator, m->data[i]->denominator);
+            ee = nr_Rashunal(m->data[i]);
         }
         r->data[i] = ee;
         if (!r->data[i]) {
@@ -391,7 +389,7 @@ RMatrix *RMatrix_row_mul(const RMatrix *m, const Rashunal *s, size_t row)
     return r;
 }
 
-RMatrix *RMatrix_row_swap(const RMatrix *m, size_t row1, size_t row2)
+RMatrix *RMatrix_row_swap(const RMatrix *m, const size_t row1, const size_t row2)
 {
     if (row1 < 1 || row1 > m->height || row2 < 1 || row2 > m->height) {
         errno = EINVAL;
@@ -426,8 +424,7 @@ RMatrix *RMatrix_row_swap(const RMatrix *m, size_t row1, size_t row2)
         } else {
             an_index = i;
         }
-        Rashunal *ee = m->data[an_index];
-        r->data[i] = n_Rashunal(ee->numerator, ee->denominator);
+        r->data[i] = nr_Rashunal(m->data[an_index]);
         if (!r->data[i]) {
             for (size_t j = 0; j < i; ++j) {
                 free(r->data[j]);
@@ -441,7 +438,7 @@ RMatrix *RMatrix_row_swap(const RMatrix *m, size_t row1, size_t row2)
     return r;
 }
 
-RMatrix *RMatrix_lc(const RMatrix *m, const Rashunal *scale, size_t source_row, size_t dest_row)
+RMatrix *RMatrix_lc(const RMatrix *m, const Rashunal *scale, const size_t source_row, const size_t dest_row)
 {
     if (source_row < 1 || source_row > m->height || dest_row < 1 || dest_row > m->height) {
         errno = EINVAL;
@@ -474,7 +471,7 @@ RMatrix *RMatrix_lc(const RMatrix *m, const Rashunal *scale, size_t source_row, 
             src_index = (source_row - 1) * m->width + (i % m->width);
             p = r_mul(m->data[src_index], scale);
             e = r_add(m->data[i], p);
-            r->data[i] = n_Rashunal(e->numerator, e->denominator);
+            r->data[i] = nr_Rashunal(e);
             free(p);
             free(e);
         }
