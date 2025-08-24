@@ -34,6 +34,32 @@ void test_new_RMatrix_with_invalid_dimensions_return_void_and_sets_errno()
     TEST_ASSERT_EQUAL(EINVAL, errno);
 }
 
+void test_new_identity_RMatrix_returns_identity()
+{
+    const Rashunal *data[] = {
+        ni_Rashunal(1),
+        ni_Rashunal(0),
+        ni_Rashunal(0),
+        ni_Rashunal(0),
+        ni_Rashunal(1),
+        ni_Rashunal(0),
+        ni_Rashunal(0),
+        ni_Rashunal(0),
+        ni_Rashunal(1),
+    };
+    RMatrix *expected = new_RMatrix(3, 3, data);
+
+    RMatrix *actual = new_identity_RMatrix(3);
+
+    TEST_ASSERT_TRUE(RMatrix_cmp(expected, actual) == 0);
+
+    free_RMatrix(expected);
+    free_RMatrix(actual);
+    for (int i = 0; i < 9; ++i) {
+        free((void *)data[i]);
+    }
+}
+
 void test_RMatrix_add()
 {
     const Rashunal *data1[] = {
@@ -466,6 +492,7 @@ int main(void)
 
     RUN_TEST(test_new_RMatrix_returns_matrix);
     RUN_TEST(test_new_RMatrix_with_invalid_dimensions_return_void_and_sets_errno);
+    RUN_TEST(test_new_identity_RMatrix_returns_identity);
     RUN_TEST(test_RMatrix_add);
     RUN_TEST(test_RMatrix_mul);
     RUN_TEST(test_RMatrix_transpose);

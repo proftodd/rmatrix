@@ -32,7 +32,7 @@ RMatrix* new_RMatrix(const size_t height, const size_t width, const Rashunal **d
 
     matrix->height = height;
     matrix->width = width;
-    size_t total = height * width;
+    const size_t total = height * width;
 
     matrix->data = malloc(sizeof(Rashunal *) * total);
     if (!matrix->data) {
@@ -42,6 +42,47 @@ RMatrix* new_RMatrix(const size_t height, const size_t width, const Rashunal **d
 
     for (size_t i = 0; i < total; ++i) {
         matrix->data[i] = nr_Rashunal(data[i]);
+        if (!matrix->data[i]) {
+            for (size_t j = 0; j < i; ++j) {
+                free(matrix->data[j]);
+            }
+            free(matrix->data);
+            free(matrix);
+            return NULL;
+        }
+    }
+
+    return matrix;
+}
+
+RMatrix *new_identity_RMatrix(const size_t size)
+{
+    if (size < 1) {
+        errno = EINVAL;
+        return NULL;
+    }
+
+    RMatrix *matrix = malloc(sizeof(RMatrix));
+    if (!matrix) {
+        return NULL;
+    }
+
+    matrix->height = size;
+    matrix->width = size;
+    const size_t total = size * size;
+
+    matrix->data = malloc(sizeof(Rashunal *) * total);
+    if (!matrix->data) {
+        free(matrix);
+        return NULL;
+    }
+
+    for (size_t i = 0; i < total; ++i) {
+        const size_t row = i / size;
+        const size_t col = i % size;
+        matrix->data[i] = row == col
+            ? ni_Rashunal(1)
+            : ni_Rashunal(0);
         if (!matrix->data[i]) {
             for (size_t j = 0; j < i; ++j) {
                 free(matrix->data[j]);
