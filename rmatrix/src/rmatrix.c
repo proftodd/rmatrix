@@ -18,7 +18,7 @@ typedef struct IntPair {
     int second;
 } IntPair;
 
-RMatrix* new_RMatrix(const size_t height, const size_t width, const Rashunal **data)
+RMatrix* new_RMatrix(const size_t height, const size_t width, Rashunal * const *data)
 {
     if (height < 1 || width < 1) {
         errno = EINVAL;
@@ -53,6 +53,11 @@ RMatrix* new_RMatrix(const size_t height, const size_t width, const Rashunal **d
     }
 
     return matrix;
+}
+
+RMatrix *new_copy_RMatrix(const RMatrix *matrix)
+{
+    return new_RMatrix(matrix->height, matrix->width, matrix->data);
 }
 
 RMatrix *new_identity_RMatrix(const size_t size)
@@ -94,6 +99,18 @@ RMatrix *new_identity_RMatrix(const size_t size)
     }
 
     return matrix;
+}
+
+RMatrix *new_permutation_RMatrix(const size_t size, const size_t r1, const size_t r2)
+{
+    if (r1 < 1 || r1 > size || r2 < 1 || r2 > size) {
+        errno = EINVAL;
+        return NULL;
+    }
+    RMatrix *i = new_identity_RMatrix(size);
+    RMatrix *p = RMatrix_row_swap(i, r1, r2);
+    free_RMatrix(i);
+    return p;
 }
 
 void free_RMatrix(RMatrix *m)
@@ -525,6 +542,83 @@ RMatrix *RMatrix_lc(const RMatrix *m, const Rashunal *scale, const size_t source
             return NULL;
         }
     }
+
+    return r;
+}
+
+Gauss_Factorization *RMatrix_gelim(const RMatrix *m)
+{
+    Gauss_Factorization *r = malloc(sizeof(Gauss_Factorization));
+    if (!r) {
+        return NULL;
+    }
+
+    size_t min_dim = m->height <= m->width
+        ? m->height
+        : m->width;
+    RMatrix *u = new_copy_RMatrix(m);
+    RMatrix *p = new_identity_RMatrix(min_dim);
+    RMatrix *l = new_identity_RMatrix(min_dim);
+    RMatrix *d = new_identity_RMatrix(min_dim);
+    RMatrix *old_u = NULL, *old_p = NULL, *old_l = NULL, *old_d = NULL;
+
+    const Rashunal *NEGATIVE_ONE = ni_Rashunal(-1);
+
+    for (size_t i = 1; i <= min_dim - 1; ++i) {
+        if (RMatrix_query(u, i, i)->numerator == 0) {
+            for (size_t j = i + 1; j <= min_dim; ++j) {
+                if (RMatrix_query(m, j, i)->numerator != 0) {
+                    old_u = u;
+                    old_p = p;
+                    RMatrix *pp = new_permutation_RMatrix(min_dim, i, j);
+                    u = RMatrix_row_swap(old_u, i, j);
+                    p = RMatrix_mul(pp, old_p);
+                    free_RMatrix(old_u);
+                    free_RMatrix(old_p);
+                    free_RMatrix(pp);
+                    break;
+                }
+            }
+        }
+        if (RMatrix_query(u, i, i)->numerator == 0) {
+            continue;
+        }
+        for (size_t j = i + 1; j <= min_dim; ++j) {
+            const Rashunal *pivot = RMatrix_query(m, i, i);
+            const Rashunal *el = RMatrix_query(m, j, i);
+            Rashunal *factor = r_div(el, pivot);
+            Rashunal *multiplier = r_mul(factor, NEGATIVE_ONE);
+            old_l = l;
+            old_u = u;
+            l = RMatrix_set(old_l, factor, j, i);
+            u = RMatrix_lc(old_u, multiplier, i, j);
+            free(factor);
+            free(multiplier);
+            free_RMatrix(old_l);
+            free_RMatrix(old_u);
+        }
+    }
+
+    for (size_t i = 1; i <= min_dim; ++i) {
+        Rashunal *factor = RMatrix_query(u, i, i);
+        Rashunal *inv = r_inv(factor);
+        old_d = d;
+        old_u = u;
+        d = RMatrix_set(old_d, factor, i, i);
+        u = RMatrix_row_mul(old_u, inv, i);
+        free(factor);
+        free(inv);
+        free(old_d);
+        free(old_u);
+    }
+
+    r->pi = RMatrix_transpose(p);
+    r->l = l;
+    r->d = d;
+    r->u = u;
+
+    free((Rashunal *)NEGATIVE_ONE);
+    free_RMatrix(p);
 
     return r;
 }

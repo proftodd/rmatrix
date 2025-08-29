@@ -481,6 +481,152 @@ void test_RMatrix_lc()
     }
 }
 
+void test_RMatrix_Gauss_Factorization()
+{
+    const Rashunal *data[4] = {
+        ni_Rashunal(1),
+        ni_Rashunal(2),
+        ni_Rashunal(3),
+        ni_Rashunal(4),
+    };
+    const Rashunal *el_data[4] = {
+        ni_Rashunal(1),
+        ni_Rashunal(0),
+        ni_Rashunal(3),
+        ni_Rashunal(1),
+    };
+    const Rashunal *ed_data[4] = {
+        ni_Rashunal(1),
+        ni_Rashunal(0),
+        ni_Rashunal(0),
+        ni_Rashunal(-2),
+    };
+    const Rashunal *eu_data[4] = {
+        ni_Rashunal(1),
+        ni_Rashunal(2),
+        ni_Rashunal(0),
+        ni_Rashunal(1),
+    };
+    RMatrix *m = new_RMatrix(2, 2, data);
+    RMatrix *expected_p = new_identity_RMatrix(2);
+    RMatrix *expected_l = new_RMatrix(2, 2, el_data);
+    RMatrix *expected_d = new_RMatrix(2, 2, ed_data);
+    RMatrix *expected_u = new_RMatrix(2, 2, eu_data);
+
+    Gauss_Factorization *f = RMatrix_gelim(m);
+
+    TEST_ASSERT_EQUAL(RMatrix_cmp(f->pi, expected_p), 0);
+    TEST_ASSERT_EQUAL(RMatrix_cmp(f->l, expected_l), 0);
+    TEST_ASSERT_EQUAL(RMatrix_cmp(f->d, expected_d), 0);
+    TEST_ASSERT_EQUAL(RMatrix_cmp(f->u, expected_u), 0);
+
+    free_RMatrix(m);
+    free_RMatrix(expected_p);
+    free_RMatrix(expected_l);
+    free_RMatrix(expected_d);
+    free_RMatrix(expected_u);
+    free_RMatrix((RMatrix *)f->pi);
+    free_RMatrix((RMatrix *)f->l);
+    free_RMatrix((RMatrix *)f->d);
+    free_RMatrix((RMatrix *)f->u);
+    free(f);
+    for (int i = 0; i < 4; ++i) {
+        free((void *)data[i]);
+        free((void *)el_data[i]);
+        free((void *)ed_data[i]);
+        free((void *)eu_data[i]);
+    }
+}
+
+void test_RMatrix_Gauss_Factorization_with_row_exchange()
+{
+    const Rashunal *data[9] = {
+        ni_Rashunal(0),
+        ni_Rashunal(1),
+        ni_Rashunal(1),
+        ni_Rashunal(1),
+        ni_Rashunal(0),
+        ni_Rashunal(1),
+        ni_Rashunal(2),
+        ni_Rashunal(3),
+        ni_Rashunal(4),
+    };
+    const Rashunal *epi_data[9] = {
+        ni_Rashunal(0),
+        ni_Rashunal(1),
+        ni_Rashunal(0),
+        ni_Rashunal(1),
+        ni_Rashunal(0),
+        ni_Rashunal(0),
+        ni_Rashunal(0),
+        ni_Rashunal(0),
+        ni_Rashunal(1),
+    };
+    const Rashunal *el_data[9] = {
+        ni_Rashunal(1),
+        ni_Rashunal(0),
+        ni_Rashunal(0),
+        ni_Rashunal(0),
+        ni_Rashunal(1),
+        ni_Rashunal(0),
+        ni_Rashunal(2),
+        ni_Rashunal(3),
+        ni_Rashunal(1),
+    };
+    const Rashunal *ed_data[9] = {
+        ni_Rashunal(1),
+        ni_Rashunal(0),
+        ni_Rashunal(0),
+        ni_Rashunal(0),
+        ni_Rashunal(1),
+        ni_Rashunal(0),
+        ni_Rashunal(0),
+        ni_Rashunal(0),
+        ni_Rashunal(-1),
+    };
+    const Rashunal *eu_data[9] = {
+        ni_Rashunal(1),
+        ni_Rashunal(0),
+        ni_Rashunal(1),
+        ni_Rashunal(0),
+        ni_Rashunal(1),
+        ni_Rashunal(1),
+        ni_Rashunal(0),
+        ni_Rashunal(0),
+        ni_Rashunal(1),
+    };
+    RMatrix *m = new_RMatrix(3, 3, data);
+    RMatrix *expected_p = new_RMatrix(3, 3, epi_data);
+    RMatrix *expected_l = new_RMatrix(3, 3, el_data);
+    RMatrix *expected_d = new_RMatrix(3, 3, ed_data);
+    RMatrix *expected_u = new_RMatrix(3, 3, eu_data);
+
+    Gauss_Factorization *f = RMatrix_gelim(m);
+
+    TEST_ASSERT_EQUAL(RMatrix_cmp(f->pi, expected_p), 0);
+    TEST_ASSERT_EQUAL(RMatrix_cmp(f->l, expected_l), 0);
+    TEST_ASSERT_EQUAL(RMatrix_cmp(f->d, expected_d), 0);
+    TEST_ASSERT_EQUAL(RMatrix_cmp(f->u, expected_u), 0);
+
+    free_RMatrix(m);
+    free_RMatrix(expected_p);
+    free_RMatrix(expected_l);
+    free_RMatrix(expected_d);
+    free_RMatrix(expected_u);
+    free_RMatrix((RMatrix *)f->pi);
+    free_RMatrix((RMatrix *)f->l);
+    free_RMatrix((RMatrix *)f->d);
+    free_RMatrix((RMatrix *)f->u);
+    free(f);
+    for (int i = 0; i < 9; ++i) {
+        free((void *)data[i]);
+        free((void *)epi_data[i]);
+        free((void *)el_data[i]);
+        free((void *)ed_data[i]);
+        free((void *)eu_data[i]);
+    }
+}
+
 void tearDown(void)
 {
 
@@ -502,6 +648,8 @@ int main(void)
     RUN_TEST(test_RMatrix_row_mul);
     RUN_TEST(test_RMatrix_row_swap);
     RUN_TEST(test_RMatrix_lc);
+    RUN_TEST(test_RMatrix_Gauss_Factorization);
+    RUN_TEST(test_RMatrix_Gauss_Factorization_with_row_exchange);
 
     return UNITY_END();
 }
