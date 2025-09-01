@@ -524,7 +524,7 @@ RMatrix *RMatrix_lc(const RMatrix *m, const Rashunal *scale, const size_t source
     Rashunal *e = NULL, *p = NULL;
     for (size_t i = 0; i < total; ++i) {
         if (i < min_target_index || i >= max_target_index) {
-            r->data[i] = n_Rashunal(m->data[i]->numerator, m->data[i]->denominator);
+            r->data[i] = nr_Rashunal(m->data[i]);
         } else {
             src_index = (source_row - 1) * m->width + (i % m->width);
             p = r_mul(m->data[src_index], scale);
@@ -606,10 +606,9 @@ Gauss_Factorization *RMatrix_gelim(const RMatrix *m)
         old_u = u;
         d = RMatrix_set(old_d, factor, i, i);
         u = RMatrix_row_mul(old_u, inv, i);
-        free(factor);
         free(inv);
-        free(old_d);
-        free(old_u);
+        free_RMatrix(old_d);
+        free_RMatrix(old_u);
     }
 
     r->pi = RMatrix_transpose(p);
