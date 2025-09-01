@@ -627,6 +627,73 @@ void test_RMatrix_Gauss_Factorization_with_row_exchange()
     }
 }
 
+void test_RMatrix_Gauss_Factorization_of_rectangular_matrix()
+{
+    Rashunal *data[12] = {
+        ni_Rashunal(1),
+        ni_Rashunal(3),
+        ni_Rashunal(3),
+        ni_Rashunal(2),
+        ni_Rashunal(2),
+        ni_Rashunal(6),
+        ni_Rashunal(9),
+        ni_Rashunal(5),
+        ni_Rashunal(-1),
+        ni_Rashunal(-3),
+        ni_Rashunal(3),
+        ni_Rashunal(0),
+    };
+    Rashunal *el_data[9] = {
+        ni_Rashunal(1),
+        ni_Rashunal(0),
+        ni_Rashunal(0),
+        ni_Rashunal(2),
+        ni_Rashunal(1),
+        ni_Rashunal(0),
+        ni_Rashunal(-1),
+        ni_Rashunal(2),
+        ni_Rashunal(1),
+    };
+    Rashunal *eu_data[12] = {
+        ni_Rashunal(1),
+        ni_Rashunal(3),
+        ni_Rashunal(3),
+        ni_Rashunal(2),
+        ni_Rashunal(0),
+        ni_Rashunal(0),
+        ni_Rashunal(3),
+        ni_Rashunal(1),
+        ni_Rashunal(0),
+        ni_Rashunal(0),
+        ni_Rashunal(0),
+        ni_Rashunal(0),
+    };
+    RMatrix *m = new_RMatrix(3, 4, data);
+    RMatrix *expected_l = new_RMatrix(3, 3, el_data);
+    RMatrix *expected_u = new_RMatrix(3, 4, eu_data);
+
+    Gauss_Factorization *f = RMatrix_gelim(m);
+
+    TEST_ASSERT_EQUAL(RMatrix_cmp(f->l, expected_l), 0);
+    TEST_ASSERT_NULL(f->d);
+    TEST_ASSERT_EQUAL(RMatrix_cmp(f->u, expected_u), 0);
+
+    free_RMatrix(m);
+    free_RMatrix(expected_l);
+    free_RMatrix(expected_u);
+    free_RMatrix((RMatrix *)f->pi);
+    free_RMatrix((RMatrix *)f->l);
+    free_RMatrix((RMatrix *)f->u);
+    free(f);
+    for (int i = 0; i < 12; ++i) {
+        free((void *)data[i]);
+        free((void *)eu_data[i]);
+    }
+    for (int i = 0; i < 9; ++i) {
+        free((void *)el_data[i]);
+    }
+}
+
 void tearDown(void)
 {
 
@@ -650,6 +717,7 @@ int main(void)
     RUN_TEST(test_RMatrix_lc);
     RUN_TEST(test_RMatrix_Gauss_Factorization);
     RUN_TEST(test_RMatrix_Gauss_Factorization_with_row_exchange);
+    RUN_TEST(test_RMatrix_Gauss_Factorization_of_rectangular_matrix);
 
     return UNITY_END();
 }
