@@ -553,84 +553,114 @@ Gauss_Factorization *RMatrix_gelim(const RMatrix *m)
         return NULL;
     }
 
+    const size_t h = m->height;
+    const size_t w = m->width;
+    const size_t min_dim = (h < w) ? h : w;
+
     RMatrix *u = new_copy_RMatrix(m);
-    RMatrix *p = new_identity_RMatrix(m->height);
-    RMatrix *l = new_identity_RMatrix(m->height);
-    RMatrix *d;
+    RMatrix *p = new_identity_RMatrix(h);
+    RMatrix *l = new_identity_RMatrix(h);
+    RMatrix *d = NULL;
+
     RMatrix *old_u = NULL, *old_p = NULL, *old_l = NULL, *old_d = NULL;
 
     const Rashunal *NEGATIVE_ONE = ni_Rashunal(-1);
 
-    for (size_t i = 1, j = 1; i <= m->height - 1 && j <= m->width - 1; ) {
+    // i = current row, j = current column
+    for (size_t i = 1, j = 1; i <= h && j <= w; )
+    {
+        // If we're past the last usable diagonal, we can stop
+        if (i > min_dim) break;
+
+        // 1) Pivoting: if pivot is zero, try to find a row k>i with nonzero in column j
         if (RMatrix_query(u, i, j)->numerator == 0) {
-            for (size_t k = i + 1; k <= m->height; ++k) {
-                if (RMatrix_query(u, k, j)->numerator != 0) {
-                    old_u = u;
-                    old_p = p;
-                    RMatrix *pp = new_permutation_RMatrix(m->height, i, k);
-                    u = RMatrix_row_swap(old_u, i, k);
-                    p = RMatrix_mul(pp, old_p);
-                    free_RMatrix(old_u);
-                    free_RMatrix(old_p);
-                    free_RMatrix(pp);
-                    break;
-                }
+            size_t k_found = 0;
+            for (size_t k = i + 1; k <= h; ++k) {
+                if (RMatrix_query(u, k, j)->numerator != 0) { k_found = k; break; }
+            }
+            if (k_found) {
+                old_u = u;
+                old_p = p;
+                RMatrix *pp = new_permutation_RMatrix(h, i, k_found); // swap rows i<->k_found
+                u = RMatrix_row_swap(old_u, i, k_found);
+                p = RMatrix_mul(pp, old_p);
+                free_RMatrix(old_u);
+                free_RMatrix(old_p);
+                free_RMatrix(pp);
             }
         }
+
+        // 2) If pivot is still zero, this column is done — move to next column
         if (RMatrix_query(u, i, j)->numerator == 0) {
             ++j;
             continue;
         }
-        for (size_t k = i + 1; k <= m->height; ++k) {
+
+        // 3) Eliminate below pivot in column j
+        for (size_t k = i + 1; k <= h; ++k) {
             const Rashunal *pivot = RMatrix_query(u, i, j);
+            // Safety: pivot must be nonzero here
+            if (pivot->numerator == 0) { ++j; goto next_iteration; }
+
             const Rashunal *el = RMatrix_query(u, k, j);
-            Rashunal *factor = r_div(el, pivot);
+            if (el->numerator == 0) continue; // nothing to eliminate
+
+            Rashunal *factor = r_div(el, pivot);            // factor = el/pivot
             Rashunal *multiplier = r_mul(factor, NEGATIVE_ONE);
+
             old_l = l;
             old_u = u;
-            l = RMatrix_set(old_l, factor, k, i);
-            u = RMatrix_lc(old_u, multiplier, i, k);
-            free(factor);
+            l = RMatrix_set(old_l, factor, k, i);           // write factor into L(k,i)
+            u = RMatrix_lc(old_u, multiplier, i, k);        // row_k <- row_k + multiplier * row_i
+
             free(multiplier);
+            free(factor);
             free_RMatrix(old_l);
             free_RMatrix(old_u);
         }
+
+        // Move to next row & next column for the next pivot position
         ++i;
         ++j;
+
+    next_iteration:
+        (void)0;
     }
 
-    int m_is_singular = 0;
-    for (size_t i = 1; i <= m->height; ++i) {
-        Rashunal *el = RMatrix_query(u, i, i);
-        if (el->numerator == 0) {
-            m_is_singular = 1;
-            d = NULL;
-            break;
-        }
+    // 4) Build D and normalize U if matrix is nonsingular on the diagonal
+    //    Only check the diagonal up to min(h,w)
+    int singular = 0;
+    for (size_t i = 1; i <= min_dim; ++i) {
+        const Rashunal *el = RMatrix_query(u, i, i);
+        if (el->numerator == 0) { singular = 1; break; }
     }
 
-    if (m_is_singular == 0) {
-        d = new_identity_RMatrix(m->height);
-        for (size_t i = 1; i <= m->height; ++i) {
-            Rashunal *factor = RMatrix_query(u, i, i);
-            Rashunal *inv = r_inv(factor);
+    if (!singular) {
+        d = new_identity_RMatrix(h);
+        for (size_t i = 1; i <= min_dim; ++i) {
+            const Rashunal *pivot = RMatrix_query(u, i, i); // owned by u, do not free
+            Rashunal *inv = r_inv(pivot);
+
             old_d = d;
             old_u = u;
-            d = RMatrix_set(old_d, factor, i, i);
-            u = RMatrix_row_mul(old_u, inv, i);
+            d = RMatrix_set(old_d, (Rashunal*)pivot, i, i); // assumes set() copies value
+            u = RMatrix_row_mul(old_u, inv, i);             // make pivot 1
+
             free(inv);
             free_RMatrix(old_d);
             free_RMatrix(old_u);
         }
+    } else {
+        d = NULL; // singular: leave D unset
     }
 
-
+    // 5) Package result (π is P^T with your convention)
     r->pi = RMatrix_transpose(p);
-    r->l = l;
-    r->d = d;
-    r->u = u;
+    r->l  = l;
+    r->d  = d;
+    r->u  = u;
 
-    free((Rashunal *)NEGATIVE_ONE);
+    free((Rashunal*)NEGATIVE_ONE);
     free_RMatrix(p);
 
     return r;
