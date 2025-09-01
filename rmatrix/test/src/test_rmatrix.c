@@ -9,7 +9,7 @@ void setUp(void) {
 
 void test_new_RMatrix_returns_matrix()
 {
-    const Rashunal *data[] = {
+    Rashunal *data[] = {
         ni_Rashunal(1),
         ni_Rashunal(2),
         ni_Rashunal(3),
@@ -28,7 +28,7 @@ void test_new_RMatrix_returns_matrix()
 
 void test_new_RMatrix_with_invalid_dimensions_return_void_and_sets_errno()
 {
-    const Rashunal *data[] = {};
+    Rashunal *data[] = {};
     RMatrix *m = new_RMatrix(2, 0, data);
     TEST_ASSERT_NULL(m);
     TEST_ASSERT_EQUAL(EINVAL, errno);
@@ -36,7 +36,7 @@ void test_new_RMatrix_with_invalid_dimensions_return_void_and_sets_errno()
 
 void test_new_identity_RMatrix_returns_identity()
 {
-    const Rashunal *data[] = {
+    Rashunal *data[] = {
         ni_Rashunal(1),
         ni_Rashunal(0),
         ni_Rashunal(0),
@@ -62,7 +62,7 @@ void test_new_identity_RMatrix_returns_identity()
 
 void test_RMatrix_add()
 {
-    const Rashunal *data1[] = {
+    Rashunal *data1[] = {
         ni_Rashunal(1),
         ni_Rashunal(2),
         ni_Rashunal(3),
@@ -76,7 +76,7 @@ void test_RMatrix_add()
         ni_Rashunal(1),
         ni_Rashunal(2),
     };
-    const Rashunal *data2[] = {
+    Rashunal *data2[] = {
         ni_Rashunal(1),
         ni_Rashunal(1),
         ni_Rashunal(1),
@@ -90,7 +90,7 @@ void test_RMatrix_add()
         ni_Rashunal(3),
         ni_Rashunal(3),
     };
-    const Rashunal *data3[] = {
+    Rashunal *data3[] = {
         ni_Rashunal(2),
         ni_Rashunal(3),
         ni_Rashunal(4),
@@ -126,7 +126,7 @@ void test_RMatrix_add()
 
 void test_RMatrix_transpose()
 {
-    const Rashunal *data1[] = {
+    Rashunal *data1[] = {
         ni_Rashunal(1),
         ni_Rashunal(2),
         ni_Rashunal(3),
@@ -140,7 +140,7 @@ void test_RMatrix_transpose()
         ni_Rashunal(1),
         ni_Rashunal(2),
     };
-    const Rashunal *data2[] = {
+    Rashunal *data2[] = {
         ni_Rashunal(1),
         ni_Rashunal(5),
         ni_Rashunal(9),
@@ -172,7 +172,7 @@ void test_RMatrix_transpose()
 
 void test_RMatrix_mul()
 {
-    const Rashunal *data1[] = {
+    Rashunal *data1[] = {
         ni_Rashunal(1),
         ni_Rashunal(2),
         ni_Rashunal(3),
@@ -186,7 +186,7 @@ void test_RMatrix_mul()
         ni_Rashunal(1),
         ni_Rashunal(2),
     };
-    const Rashunal *data2[] = {
+    Rashunal *data2[] = {
         ni_Rashunal(1),
         ni_Rashunal(2),
         ni_Rashunal(-1),
@@ -196,7 +196,7 @@ void test_RMatrix_mul()
         ni_Rashunal(1),
         ni_Rashunal(0),
     };
-    const Rashunal *data3[] = {
+    Rashunal *data3[] = {
         ni_Rashunal(3),
         ni_Rashunal(7),
         ni_Rashunal(7),
@@ -230,7 +230,7 @@ void test_RMatrix_mul()
 
 void test_RMatrix_to_string_array()
 {
-    const Rashunal *data[] = {
+    Rashunal *data[] = {
         ni_Rashunal(1),
         ni_Rashunal(2),
         ni_Rashunal(3),
@@ -255,7 +255,7 @@ void test_RMatrix_to_string_array()
 
 void test_RMatrix_cmp()
 {
-    const Rashunal *data1[] = {
+    Rashunal *data1[] = {
         ni_Rashunal(1),
         ni_Rashunal(2),
         ni_Rashunal(3),
@@ -263,7 +263,7 @@ void test_RMatrix_cmp()
         ni_Rashunal(5),
         ni_Rashunal(6),
     };
-    const Rashunal *data2[] = {
+    Rashunal *data2[] = {
         ni_Rashunal(1),
         ni_Rashunal(2),
         ni_Rashunal(3),
@@ -293,7 +293,7 @@ void test_RMatrix_cmp()
 
 void test_RMatrix_set()
 {
-    const Rashunal *data1[] = {
+    Rashunal *data1[] = {
         ni_Rashunal(1),
         ni_Rashunal(2),
         ni_Rashunal(3),
@@ -307,7 +307,7 @@ void test_RMatrix_set()
         ni_Rashunal(1),
         ni_Rashunal(2),
     };
-    const Rashunal *data2[] = {
+    Rashunal *data2[] = {
         ni_Rashunal(1),
         ni_Rashunal(2),
         ni_Rashunal(3),
@@ -341,7 +341,7 @@ void test_RMatrix_set()
 
 void test_RMatrix_row_mul()
 {
-    const Rashunal *data1[] = {
+    Rashunal *data1[] = {
         ni_Rashunal(1),
         ni_Rashunal(2),
         ni_Rashunal(3),
@@ -355,7 +355,7 @@ void test_RMatrix_row_mul()
         ni_Rashunal(1),
         ni_Rashunal(2),
     };
-    const Rashunal *data2[] = {
+    Rashunal *data2[] = {
         ni_Rashunal(1),
         ni_Rashunal(2),
         ni_Rashunal(3),
@@ -389,7 +389,7 @@ void test_RMatrix_row_mul()
 
 void test_RMatrix_row_swap()
 {
-    const Rashunal *data1[] = {
+    Rashunal *data1[] = {
         ni_Rashunal(1),
         ni_Rashunal(2),
         ni_Rashunal(3),
@@ -403,7 +403,7 @@ void test_RMatrix_row_swap()
         ni_Rashunal(1),
         ni_Rashunal(2),
     };
-    const Rashunal *data2[] = {
+    Rashunal *data2[] = {
         ni_Rashunal(1),
         ni_Rashunal(2),
         ni_Rashunal(3),
@@ -435,7 +435,7 @@ void test_RMatrix_row_swap()
 
 void test_RMatrix_lc()
 {
-    const Rashunal *data1[] = {
+    Rashunal *data1[] = {
         ni_Rashunal(1),
         ni_Rashunal(2),
         ni_Rashunal(3),
@@ -449,7 +449,7 @@ void test_RMatrix_lc()
         ni_Rashunal(1),
         ni_Rashunal(2),
     };
-    const Rashunal *data2[] = {
+    Rashunal *data2[] = {
         ni_Rashunal(1),
         ni_Rashunal(2),
         ni_Rashunal(3),
@@ -483,25 +483,25 @@ void test_RMatrix_lc()
 
 void test_RMatrix_Gauss_Factorization()
 {
-    const Rashunal *data[4] = {
+    Rashunal *data[4] = {
         ni_Rashunal(1),
         ni_Rashunal(2),
         ni_Rashunal(3),
         ni_Rashunal(4),
     };
-    const Rashunal *el_data[4] = {
+    Rashunal *el_data[4] = {
         ni_Rashunal(1),
         ni_Rashunal(0),
         ni_Rashunal(3),
         ni_Rashunal(1),
     };
-    const Rashunal *ed_data[4] = {
+    Rashunal *ed_data[4] = {
         ni_Rashunal(1),
         ni_Rashunal(0),
         ni_Rashunal(0),
         ni_Rashunal(-2),
     };
-    const Rashunal *eu_data[4] = {
+    Rashunal *eu_data[4] = {
         ni_Rashunal(1),
         ni_Rashunal(2),
         ni_Rashunal(0),
@@ -540,7 +540,7 @@ void test_RMatrix_Gauss_Factorization()
 
 void test_RMatrix_Gauss_Factorization_with_row_exchange()
 {
-    const Rashunal *data[9] = {
+    Rashunal *data[9] = {
         ni_Rashunal(0),
         ni_Rashunal(1),
         ni_Rashunal(1),
@@ -551,7 +551,7 @@ void test_RMatrix_Gauss_Factorization_with_row_exchange()
         ni_Rashunal(3),
         ni_Rashunal(4),
     };
-    const Rashunal *epi_data[9] = {
+    Rashunal *epi_data[9] = {
         ni_Rashunal(0),
         ni_Rashunal(1),
         ni_Rashunal(0),
@@ -562,7 +562,7 @@ void test_RMatrix_Gauss_Factorization_with_row_exchange()
         ni_Rashunal(0),
         ni_Rashunal(1),
     };
-    const Rashunal *el_data[9] = {
+    Rashunal *el_data[9] = {
         ni_Rashunal(1),
         ni_Rashunal(0),
         ni_Rashunal(0),
@@ -573,7 +573,7 @@ void test_RMatrix_Gauss_Factorization_with_row_exchange()
         ni_Rashunal(3),
         ni_Rashunal(1),
     };
-    const Rashunal *ed_data[9] = {
+    Rashunal *ed_data[9] = {
         ni_Rashunal(1),
         ni_Rashunal(0),
         ni_Rashunal(0),
@@ -584,7 +584,7 @@ void test_RMatrix_Gauss_Factorization_with_row_exchange()
         ni_Rashunal(0),
         ni_Rashunal(-1),
     };
-    const Rashunal *eu_data[9] = {
+    Rashunal *eu_data[9] = {
         ni_Rashunal(1),
         ni_Rashunal(0),
         ni_Rashunal(1),
