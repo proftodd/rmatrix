@@ -1,3 +1,4 @@
+include(CheckLibraryExists)
 include(GNUInstallDirs)
 option(RMATRIX_BUILD_TESTS "Build RMatrix's unit tests" ON)
 
@@ -8,13 +9,29 @@ target_include_directories(rmatrix
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
 )
 
-target_link_libraries(rmatrix
-    PUBLIC
-        rashunal::rashunal
-        m
+set_target_properties(rmatrix
+    PROPERTIES
+        ARCHIVE_OUTPUT_DIRECTORY_DEBUG "${CMAKE_BINARY_DIR}/rmatrix/Debug"
+        ARCHIVE_OUTPUT_DIRECTORY_RELEASE "${CMAKE_BINARY_DIR}/rmatrix/Release"
+        LIBRARY_OUTPUT_DIRECTORY_DEBUG "${CMAKE_BINARY_DIR}/rmatrix/Debug"
+        LIBRARY_OUTPUT_DIRECTORY_RELEASE "${CMAKE_BINARY_DIR}/rmatrix/Release"
+        RUNTIME_OUTPUT_DIRECTORY_DEBUG "${CMAKE_BINARY_DIR}/rmatrix/Debug"
+        RUNTIME_OUTPUT_DIRECTORY_RELEASE "${CMAKE_BINARY_DIR}/rmatrix/Release"
 )
 
-target_compile_options(rmatrix PRIVATE -Wall -Werror)
+target_link_libraries(rmatrix PUBLIC rashunal::rashunal)
+
+check_library_exists(m abs "" NEED_LIBM)
+if (NEED_LIBM)
+    target_link_libraries(rmatrix PUBLIC m)
+endif()
+
+target_compile_definitions(rmatrix PRIVATE RMATRIX_BUILD_DLL)
+if (MSVC)
+    target_compile_options(rmatrix PRIVATE /W4)
+else()
+    target_compile_options(rmatrix PRIVATE -Wall -Werror)
+endif()
 
 if (RMATRIX_BUILD_TESTS)
     FetchContent_Declare(
