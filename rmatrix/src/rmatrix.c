@@ -546,6 +546,65 @@ RMatrix *RMatrix_lc(const RMatrix *m, const Rashunal *scale, const size_t source
     return r;
 }
 
+RMatrix *RMatrix_invert(const RMatrix *m)
+{
+    if (m->height != m->width) {
+        errno = EINVAL;
+        return NULL;
+    }
+
+    RMatrix *inverse = new_identity_RMatrix(m->height);
+    RMatrix *working = new_copy_RMatrix(m);
+    RMatrix *old_inverse, *old_working;
+
+    const Rashunal *ONE = ni_Rashunal(1);
+    const Rashunal *ZERO = ni_Rashunal(0);
+    const Rashunal *MINUS_ONE = ni_Rashunal(-1);
+    for (size_t i = 1; i <= m->height; ++i) {
+        Rashunal *pivot = RMatrix_query(working, i, i);
+        if (r_cmp(ZERO, pivot) == 0) {
+            // singular
+            free((void *)ONE);
+            free((void *)ZERO);
+            free((void *)MINUS_ONE);
+            free_RMatrix(inverse);
+            free_RMatrix(working);
+            errno = EINVAL;
+            return NULL;
+        }
+        if (r_cmp(ONE, pivot) != 0) {
+            Rashunal *factor = r_inv(pivot);
+            old_working = working;
+            old_inverse = inverse;
+            working = RMatrix_row_mul(old_working, factor, i);
+            inverse = RMatrix_row_mul(old_inverse, factor, i);
+            free(factor);
+            free_RMatrix(old_working);
+            free_RMatrix(old_inverse);
+        }
+        for (size_t ii = 1; ii <= RMatrix_height(m); ++ii) {
+            if (ii == i) {
+                continue;
+            }
+            Rashunal *f = RMatrix_query(working, ii, i);
+            Rashunal* nf = r_mul(f, MINUS_ONE);
+            old_working = working;
+            old_inverse = inverse;
+            working = RMatrix_lc(old_working, nf, i, ii);
+            inverse = RMatrix_lc(old_inverse, nf, i, ii);
+            free(nf);
+            free_RMatrix(old_working);
+            free_RMatrix(old_inverse);
+        }
+    }
+
+    free((void *)ONE);
+    free((void *)ZERO);
+    free((void *)MINUS_ONE);
+    free_RMatrix(working);
+    return inverse;
+}
+
 Gauss_Factorization *RMatrix_gelim(const RMatrix *m)
 {
     Gauss_Factorization *r = malloc(sizeof(Gauss_Factorization));
