@@ -7,6 +7,8 @@ To install (after cloning):
 $ cmake -S . -B build
 $ make -C build && make test -C build
 ```
+If you like what you see,
+`sudo cmake --install .`
 
 I've only tested the build, compilation, testing, and installation on my Mac. CMake is supposed to be cross-platform, but YMMV.
 

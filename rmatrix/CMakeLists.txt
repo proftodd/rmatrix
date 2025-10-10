@@ -2,6 +2,17 @@ include(CheckLibraryExists)
 include(GNUInstallDirs)
 option(RMATRIX_BUILD_TESTS "Build RMatrix's unit tests" ON)
 
+set(PACKAGE_NAME rmatrix)
+set(PACKAGE_VERSION 0.0.1)
+set(PACKAGE_DESC "Matrix library using Rashunal (rational) numbers")
+set(PKGCONFIG_INSTALL_DIR "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
+
+configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/rmatrix.pc.in
+    ${CMAKE_CURRENT_BINARY_DIR}/${PACKAGE_NAME}.pc
+    @ONLY
+)
+
 add_library(rmatrix SHARED src/rmatrix.c)
 target_include_directories(rmatrix
     PUBLIC
@@ -69,9 +80,14 @@ install(EXPORT rmatrixTargets
     DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/rmatrix"
 )
 
-install(FILES
-    ${CMAKE_CURRENT_BINARY_DIR}/rmatrixConfig.cmake
+install(
+    FILES ${CMAKE_CURRENT_BINARY_DIR}/rmatrixConfig.cmake
     DESTINATION lib/cmake/rmatrix
+)
+
+install(
+    FILES ${CMAKE_CURRENT_BINARY_DIR}/${PACKAGE_NAME}.pc
+    DESTINATION ${PKGCONFIG_INSTALL_DIR}
 )
 
 include(CMakePackageConfigHelpers)
