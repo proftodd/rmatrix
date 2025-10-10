@@ -86,15 +86,15 @@ int main(int argc, char *argv[])
     }
     free(as_string);
 
-    for (int i = 0; i < RMatrix_height(m2) * RMatrix_width(m2); ++i) {
+    for (size_t i = 0; i < RMatrix_height(m2) * RMatrix_width(m2); ++i) {
         free(read_data[i]);
     }
     free_RMatrix(m2);
     free(read_as_string);
-    free_RMatrix(f->pi);
-    free_RMatrix(f->l);
-    free_RMatrix(f->d);
-    free_RMatrix(f->u);
+    free_RMatrix((void *)f->pi);
+    free_RMatrix((void *)f->l);
+    free_RMatrix((void *)f->d);
+    free_RMatrix((void *)f->u);
     free(f);
 
     return 0;
