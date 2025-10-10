@@ -574,6 +574,60 @@ void test_RMatrix_invert()
     }
 }
 
+void test_RMatrix_invert_with_row_swap()
+{
+    Rashunal *data[] = {
+        ni_Rashunal(0),
+        ni_Rashunal(0),
+        ni_Rashunal(0),
+        ni_Rashunal(1),
+        ni_Rashunal(0),
+        ni_Rashunal(0),
+        ni_Rashunal(2),
+        ni_Rashunal(0),
+        ni_Rashunal(0),
+        ni_Rashunal(3),
+        ni_Rashunal(0),
+        ni_Rashunal(0),
+        ni_Rashunal(4),
+        ni_Rashunal(0),
+        ni_Rashunal(0),
+        ni_Rashunal(0),
+    };
+    Rashunal *data2[] = {
+        ni_Rashunal(0),
+        ni_Rashunal(0),
+        ni_Rashunal(0),
+        n_Rashunal(1, 4),
+        ni_Rashunal(0),
+        ni_Rashunal(0),
+        n_Rashunal(1, 3),
+        ni_Rashunal(0),
+        ni_Rashunal(0),
+        n_Rashunal(1, 2),
+        ni_Rashunal(0),
+        ni_Rashunal(0),
+        ni_Rashunal(1),
+        ni_Rashunal(0),
+        ni_Rashunal(0),
+        ni_Rashunal(0)
+    };
+    RMatrix *m = new_RMatrix(4, 4, data);
+    RMatrix *exp = new_RMatrix(4, 4, data2);
+
+    RMatrix *inv = RMatrix_invert(m);
+
+    TEST_ASSERT_EQUAL(0, RMatrix_cmp(exp, inv));
+
+    free_RMatrix(m);
+    free_RMatrix(exp);
+    free_RMatrix(inv);
+    for (int i = 0; i < 16; ++i) {
+        free((void *)data[i]);
+        free((void *)data2[i]);
+    }
+}
+
 void test_RMatrix_Gauss_Factorization()
 {
     Rashunal *data[4] = {
@@ -811,6 +865,7 @@ int main(void)
     RUN_TEST(test_RMatrix_invert_returns_null_and_sets_errno_if_rectangular);
     RUN_TEST(test_RMatrix_invert_returns_null_and_sets_errno_if_singular);
     RUN_TEST(test_RMatrix_invert);
+    RUN_TEST(test_RMatrix_invert_with_row_swap);
     RUN_TEST(test_RMatrix_Gauss_Factorization);
     RUN_TEST(test_RMatrix_Gauss_Factorization_with_row_exchange);
     RUN_TEST(test_RMatrix_Gauss_Factorization_of_rectangular_matrix);

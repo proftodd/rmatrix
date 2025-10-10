@@ -553,22 +553,44 @@ RMatrix *RMatrix_invert(const RMatrix *m)
         return NULL;
     }
 
-    RMatrix *inverse = new_identity_RMatrix(m->height);
     RMatrix *working = new_copy_RMatrix(m);
-    RMatrix *old_inverse, *old_working;
+    RMatrix *inverse = new_identity_RMatrix(m->height);
+    RMatrix *old_working = NULL;
+    RMatrix *old_inverse = NULL;
 
     const Rashunal *ONE = ni_Rashunal(1);
     const Rashunal *ZERO = ni_Rashunal(0);
     const Rashunal *MINUS_ONE = ni_Rashunal(-1);
+    Rashunal *pivot;
+
     for (size_t i = 1; i <= m->height; ++i) {
-        Rashunal *pivot = RMatrix_query(working, i, i);
+        pivot = RMatrix_query(working, i, i);
+        if (r_cmp(ZERO, pivot) == 0) {
+            size_t k_found = 0;
+            for (size_t k = i + 1; k <= m->height; ++k) {
+                pivot = RMatrix_query(working, k, i);
+                if (r_cmp(ZERO, pivot) != 0) {
+                    k_found = k;
+                    break;
+                }
+            }
+            if (k_found) {
+                old_working = working;
+                old_inverse = inverse;
+                working = RMatrix_row_swap(working, i, k_found);
+                inverse = RMatrix_row_swap(inverse, i, k_found);
+                free_RMatrix(old_working);
+                free_RMatrix(old_inverse);
+            }
+        }
+        pivot = RMatrix_query(working, i, i);
         if (r_cmp(ZERO, pivot) == 0) {
             // singular
             free((void *)ONE);
             free((void *)ZERO);
             free((void *)MINUS_ONE);
-            free_RMatrix(inverse);
             free_RMatrix(working);
+            free_RMatrix(inverse);
             errno = EINVAL;
             return NULL;
         }
