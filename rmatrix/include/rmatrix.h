@@ -49,6 +49,7 @@ RMATRIX_API RMatrix* RMatrix_row_mul(const RMatrix *m, const Rashunal *s, size_t
 RMATRIX_API RMatrix* RMatrix_row_swap(const RMatrix *m, size_t row1, size_t row2);
 RMATRIX_API RMatrix* RMatrix_lc(const RMatrix *m, const Rashunal *scale, size_t source_row, size_t dest_row);
 RMATRIX_API RMatrix* RMatrix_invert(const RMatrix *m);
+RMATRIX_API RMatrix* RMatrix_minor(const RMatrix *m, size_t row, size_t col);
 
 RMATRIX_API Gauss_Factorization* RMatrix_gelim(const RMatrix *m);
 

@@ -841,6 +841,43 @@ void test_RMatrix_Gauss_Factorization_of_rectangular_matrix()
     }
 }
 
+void test_RMatrix_minor(void)
+{
+    Rashunal *data[9] = {
+        ni_Rashunal(1),
+        ni_Rashunal(2),
+        ni_Rashunal(3),
+        ni_Rashunal(4),
+        ni_Rashunal(5),
+        ni_Rashunal(6),
+        ni_Rashunal(7),
+        ni_Rashunal(8),
+        ni_Rashunal(9),
+    };
+    Rashunal *e_data[4] = {
+        ni_Rashunal(1),
+        ni_Rashunal(3),
+        ni_Rashunal(7),
+        ni_Rashunal(9),
+    };
+    RMatrix *m = new_RMatrix(3, 3, data);
+    RMatrix *expected_m = new_RMatrix(2, 2, e_data);
+
+    RMatrix *minor = RMatrix_minor(m, 2, 2);
+
+    TEST_ASSERT_EQUAL(RMatrix_cmp(expected_m, minor), 0);
+
+    free_RMatrix(m);
+    free_RMatrix(expected_m);
+    free_RMatrix(minor);
+    for (int i = 0; i < 9; ++i) {
+        free((void *)data[i]);
+    }
+    for (int i = 0; i < 4; ++i) {
+        free((void *)e_data[i]);
+    }
+}
+
 void tearDown(void)
 {
 
@@ -869,6 +906,7 @@ int main(void)
     RUN_TEST(test_RMatrix_Gauss_Factorization);
     RUN_TEST(test_RMatrix_Gauss_Factorization_with_row_exchange);
     RUN_TEST(test_RMatrix_Gauss_Factorization_of_rectangular_matrix);
+    RUN_TEST(test_RMatrix_minor);
 
     return UNITY_END();
 }

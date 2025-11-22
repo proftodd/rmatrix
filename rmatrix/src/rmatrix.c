@@ -746,3 +746,38 @@ Gauss_Factorization *RMatrix_gelim(const RMatrix *m)
 
     return r;
 }
+
+RMatrix *RMatrix_minor(const RMatrix *m, size_t row, size_t col)
+{
+    if (RMatrix_height(m) == 1 || RMatrix_width(m) == 1 ||
+        row < 1 || row > RMatrix_height(m) ||
+        col < 1 || col > RMatrix_width(m)) {
+            errno = EINVAL;
+            return NULL;
+    }
+
+    size_t m_height = RMatrix_height(m) - 1;
+    size_t m_width = RMatrix_width(m) - 1;
+    Rashunal **data = malloc(sizeof(Rashunal *) * m_height * m_width);
+    if (!data) {
+        return NULL;
+    }
+
+    int el_num = 0;
+    for (size_t i = 1; i <= RMatrix_height(m); ++i) {
+        if (i == row) {
+            continue;
+        }
+        for (size_t j = 1; j <= RMatrix_width(m); ++j) {
+            if (j == col) {
+                continue;
+            }
+            data[el_num] = RMatrix_query(m, i, j);
+            ++el_num;
+        }
+    }
+
+    RMatrix *minor = new_RMatrix(m_height, m_width, data);
+    free(data);
+    return minor;
+}
