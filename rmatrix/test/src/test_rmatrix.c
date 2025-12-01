@@ -888,10 +888,53 @@ void test_RMatrix_det()
         &((Rashunal){ 4, 1 })
     };
     Rashunal *c_data[9] = {
-
+        &((Rashunal){ 1, 1 }),
+        &((Rashunal){ 1, 1 }),
+        &((Rashunal){ 1, 1 }),
+        &((Rashunal){ 1, 1 }),
+        &((Rashunal){ 1, 1 }),
+        &((Rashunal){ 1, 1 }),
+        &((Rashunal){ 1, 1 }),
+        &((Rashunal){ 1, 1 }),
+        &((Rashunal){ 1, 1 }),
     };
     Rashunal *d_data[36] = {
-
+        &((Rashunal){ 1, 1 }),
+        &((Rashunal){ 1, 1 }),
+        &((Rashunal){ 1, 1 }),
+        &((Rashunal){ 1, 1 }),
+        &((Rashunal){ 1, 1 }),
+        &((Rashunal){ 1, 1 }),
+        &((Rashunal){ 1, 1 }),
+        &((Rashunal){ 1, 1 }),
+        &((Rashunal){ 1, 1 }),
+        &((Rashunal){ 1, 1 }),
+        &((Rashunal){ 1, 1 }),
+        &((Rashunal){ 1, 1 }),
+        &((Rashunal){ 1, 1 }),
+        &((Rashunal){ 1, 1 }),
+        &((Rashunal){ 1, 1 }),
+        &((Rashunal){ 1, 1 }),
+        &((Rashunal){ 1, 1 }),
+        &((Rashunal){ 1, 1 }),
+        &((Rashunal){ 1, 1 }),
+        &((Rashunal){ 1, 1 }),
+        &((Rashunal){ 1, 1 }),
+        &((Rashunal){ 1, 1 }),
+        &((Rashunal){ 1, 1 }),
+        &((Rashunal){ 1, 1 }),
+        &((Rashunal){ 1, 1 }),
+        &((Rashunal){ 1, 1 }),
+        &((Rashunal){ 1, 1 }),
+        &((Rashunal){ 1, 1 }),
+        &((Rashunal){ 1, 1 }),
+        &((Rashunal){ 1, 1 }),
+        &((Rashunal){ 1, 1 }),
+        &((Rashunal){ 1, 1 }),
+        &((Rashunal){ 1, 1 }),
+        &((Rashunal){ 1, 1 }),
+        &((Rashunal){ 1, 1 }),
+        &((Rashunal){ 1, 1 }),
     };
     RMatrix *a = new_RMatrix(1, 1, a_data);
     RMatrix *b = new_RMatrix(2, 2, b_data);

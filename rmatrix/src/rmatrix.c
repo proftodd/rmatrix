@@ -801,5 +801,25 @@ Rashunal *RMatrix_det(const RMatrix *m)
         free(d2);
         return det;
     }
+    if (height == 3 && width == 3) {
+        Rashunal *da1 = r_mul_some(3, RMatrix_query(m, 1, 1), RMatrix_query(m, 2, 2), RMatrix_query(m, 3, 3));
+        Rashunal *da2 = r_mul_some(3, RMatrix_query(m, 1, 2), RMatrix_query(m, 2, 3), RMatrix_query(m, 3, 1));
+        Rashunal *da3 = r_mul_some(3, RMatrix_query(m, 1, 3), RMatrix_query(m, 2, 1), RMatrix_query(m, 3, 2));
+        Rashunal *ds1 = r_mul_some(3, RMatrix_query(m, 1, 3), RMatrix_query(m, 2, 2), RMatrix_query(m, 3, 1));
+        Rashunal *ds2 = r_mul_some(3, RMatrix_query(m, 1, 2), RMatrix_query(m, 2, 1), RMatrix_query(m, 3, 3));
+        Rashunal *ds3 = r_mul_some(3, RMatrix_query(m, 1, 1), RMatrix_query(m, 2, 3), RMatrix_query(m, 3, 2));
+        Rashunal *da = r_add_some(3, da1, da2, da3);
+        Rashunal *ds = r_add_some(3, ds1, ds2, ds3);
+        Rashunal *det = r_sub(da, ds);
+        free(da1);
+        free(da2);
+        free(da3);
+        free(ds1);
+        free(ds2);
+        free(ds3);
+        free(da);
+        free(ds);
+        return det;
+    }
     return NULL;
 }
