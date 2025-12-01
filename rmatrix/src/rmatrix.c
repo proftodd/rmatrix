@@ -821,5 +821,22 @@ Rashunal *RMatrix_det(const RMatrix *m)
         free(ds);
         return det;
     }
-    return NULL;
+    Rashunal *det = ni_Rashunal(0);
+    Rashunal *old_det;
+    Rashunal *plus_one = &(Rashunal){ 1, 1 };
+    Rashunal *minus_one = &(Rashunal){ -1, 1 };
+    for (size_t i = 1; i <= width; ++i) {
+        Rashunal *factor = i % 2 == 0 ? minus_one : plus_one;
+        Rashunal *cell = RMatrix_query(m, 1, i);
+        RMatrix *minor = RMatrix_minor(m, 1, i);
+        Rashunal *d = RMatrix_det(minor);
+        Rashunal *cofactor = r_mul_some(3, cell, factor, d);
+        old_det = det;
+        det = r_add(old_det, cofactor);
+        free_RMatrix(minor);
+        free(d);
+        free(cofactor);
+        free(old_det);
+    }
+    return det;
 }

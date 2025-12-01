@@ -947,9 +947,9 @@ void test_RMatrix_det()
     Rashunal *d_det = RMatrix_det(d);
 
     Rashunal exp_a = { .numerator = 1, .denominator = 1 };
-    Rashunal exp_b = { .numerator = -9, .denominator = 1 };
+    Rashunal exp_b = { .numerator = -2, .denominator = 1 };
     Rashunal exp_c = { .numerator = 1, .denominator = 1 };
-    Rashunal exp_d = { .numerator = 1, .denominator = 1 };
+    Rashunal exp_d = { .numerator = 6356, .denominator = 1 };
 
     TEST_ASSERT_EQUAL(0, r_cmp(a_det, &exp_a));
     TEST_ASSERT_EQUAL(0, r_cmp(b_det, &exp_b));
@@ -960,6 +960,11 @@ void test_RMatrix_det()
     free_RMatrix(b);
     free_RMatrix(c);
     free_RMatrix(d);
+
+    free(a_det);
+    free(b_det);
+    free(c_det);
+    free(d_det);
 }
 
 void tearDown(void)
