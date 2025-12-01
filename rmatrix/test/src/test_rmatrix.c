@@ -878,6 +878,47 @@ void test_RMatrix_minor(void)
     }
 }
 
+void test_RMatrix_det()
+{
+    Rashunal *a_data[1] = { &((Rashunal){ 1, 1 }) };
+    Rashunal *b_data[4] = {
+        &((Rashunal){ 1, 1 }),
+        &((Rashunal){ 2, 1 }),
+        &((Rashunal){ 3, 1 }),
+        &((Rashunal){ 4, 1 })
+    };
+    Rashunal *c_data[9] = {
+
+    };
+    Rashunal *d_data[36] = {
+
+    };
+    RMatrix *a = new_RMatrix(1, 1, a_data);
+    RMatrix *b = new_RMatrix(2, 2, b_data);
+    RMatrix *c = new_RMatrix(3, 3, c_data);
+    RMatrix *d = new_RMatrix(6, 6, d_data);
+
+    Rashunal *a_det = RMatrix_det(a);
+    Rashunal *b_det = RMatrix_det(b);
+    Rashunal *c_det = RMatrix_det(c);
+    Rashunal *d_det = RMatrix_det(d);
+
+    Rashunal exp_a = { .numerator = 1, .denominator = 1 };
+    Rashunal exp_b = { .numerator = -9, .denominator = 1 };
+    Rashunal exp_c = { .numerator = 1, .denominator = 1 };
+    Rashunal exp_d = { .numerator = 1, .denominator = 1 };
+
+    TEST_ASSERT_EQUAL(0, r_cmp(a_det, &exp_a));
+    TEST_ASSERT_EQUAL(0, r_cmp(b_det, &exp_b));
+    TEST_ASSERT_EQUAL(0, r_cmp(c_det, &exp_c));
+    TEST_ASSERT_EQUAL(0, r_cmp(d_det, &exp_d));
+
+    free_RMatrix(a);
+    free_RMatrix(b);
+    free_RMatrix(c);
+    free_RMatrix(d);
+}
+
 void tearDown(void)
 {
 
@@ -907,6 +948,7 @@ int main(void)
     RUN_TEST(test_RMatrix_Gauss_Factorization_with_row_exchange);
     RUN_TEST(test_RMatrix_Gauss_Factorization_of_rectangular_matrix);
     RUN_TEST(test_RMatrix_minor);
+    RUN_TEST(test_RMatrix_det);
 
     return UNITY_END();
 }

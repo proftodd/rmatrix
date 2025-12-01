@@ -781,3 +781,25 @@ RMatrix *RMatrix_minor(const RMatrix *m, size_t row, size_t col)
     free(data);
     return minor;
 }
+
+Rashunal *RMatrix_det(const RMatrix *m)
+{
+    const size_t height = RMatrix_height(m);
+    const size_t width = RMatrix_width(m);
+    if (height != width) {
+        errno = EINVAL;
+        return NULL;
+    }
+    if (height == 1 && width == 1) {
+        return (Rashunal *)RMatrix_get(m, 1, 1);
+    }
+    if (height == 2 && width == 2) {
+        Rashunal *d1 = r_mul(RMatrix_query(m, 1, 1), RMatrix_query(m, 2, 2));
+        Rashunal *d2 = r_mul(RMatrix_query(m, 1, 2), RMatrix_query(m, 2, 1));
+        Rashunal *det = r_sub(d1, d2);
+        free(d1);
+        free(d2);
+        return det;
+    }
+    return NULL;
+}
