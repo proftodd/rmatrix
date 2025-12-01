@@ -781,3 +781,62 @@ RMatrix *RMatrix_minor(const RMatrix *m, size_t row, size_t col)
     free(data);
     return minor;
 }
+
+Rashunal *RMatrix_det(const RMatrix *m)
+{
+    const size_t height = RMatrix_height(m);
+    const size_t width = RMatrix_width(m);
+    if (height != width) {
+        errno = EINVAL;
+        return NULL;
+    }
+    if (height == 1 && width == 1) {
+        return (Rashunal *)RMatrix_get(m, 1, 1);
+    }
+    if (height == 2 && width == 2) {
+        Rashunal *d1 = r_mul(RMatrix_query(m, 1, 1), RMatrix_query(m, 2, 2));
+        Rashunal *d2 = r_mul(RMatrix_query(m, 1, 2), RMatrix_query(m, 2, 1));
+        Rashunal *det = r_sub(d1, d2);
+        free(d1);
+        free(d2);
+        return det;
+    }
+    if (height == 3 && width == 3) {
+        Rashunal *da1 = r_mul_some(3, RMatrix_query(m, 1, 1), RMatrix_query(m, 2, 2), RMatrix_query(m, 3, 3));
+        Rashunal *da2 = r_mul_some(3, RMatrix_query(m, 1, 2), RMatrix_query(m, 2, 3), RMatrix_query(m, 3, 1));
+        Rashunal *da3 = r_mul_some(3, RMatrix_query(m, 1, 3), RMatrix_query(m, 2, 1), RMatrix_query(m, 3, 2));
+        Rashunal *ds1 = r_mul_some(3, RMatrix_query(m, 1, 3), RMatrix_query(m, 2, 2), RMatrix_query(m, 3, 1));
+        Rashunal *ds2 = r_mul_some(3, RMatrix_query(m, 1, 2), RMatrix_query(m, 2, 1), RMatrix_query(m, 3, 3));
+        Rashunal *ds3 = r_mul_some(3, RMatrix_query(m, 1, 1), RMatrix_query(m, 2, 3), RMatrix_query(m, 3, 2));
+        Rashunal *da = r_add_some(3, da1, da2, da3);
+        Rashunal *ds = r_add_some(3, ds1, ds2, ds3);
+        Rashunal *det = r_sub(da, ds);
+        free(da1);
+        free(da2);
+        free(da3);
+        free(ds1);
+        free(ds2);
+        free(ds3);
+        free(da);
+        free(ds);
+        return det;
+    }
+    Rashunal *det = ni_Rashunal(0);
+    Rashunal *old_det;
+    Rashunal *plus_one = &(Rashunal){ 1, 1 };
+    Rashunal *minus_one = &(Rashunal){ -1, 1 };
+    for (size_t i = 1; i <= width; ++i) {
+        Rashunal *factor = i % 2 == 0 ? minus_one : plus_one;
+        Rashunal *cell = RMatrix_query(m, 1, i);
+        RMatrix *minor = RMatrix_minor(m, 1, i);
+        Rashunal *d = RMatrix_det(minor);
+        Rashunal *cofactor = r_mul_some(3, cell, factor, d);
+        old_det = det;
+        det = r_add(old_det, cofactor);
+        free_RMatrix(minor);
+        free(d);
+        free(cofactor);
+        free(old_det);
+    }
+    return det;
+}
